@@ -34,11 +34,11 @@ def start():
 
     driver.get(url)
 
-    time.sleep(5)
+    time.sleep(3)
 
     login = {
-        "id": user_id.get(),
-        "pw": password.get()
+        "id": user_id.get().lower(),
+        "pw": password.get().lower()
     }
 
     def clipboard_input(id, user_input):
@@ -87,7 +87,10 @@ def start():
             new_window.title("아이디랑 비번 확인 필요")
             new_window.geometry(
                 f"{app_width}x{app_height}+{int(center_width)}+{int(center_height)}")
-            btn = Button(new_window, text='종료하기', command=quit_all, width=20, height=3, fg='white', bg='white', cursor="coffee_mug").pack(
+
+            Label(new_window, text="아이디와 비밀번호를 확인해주세요",
+                  anchor="n", pady=10).pack()
+            Button(new_window, text='종료하기', command=quit_all, width=20, height=3, fg='white', bg='white', cursor="coffee_mug").pack(
                 side=TOP, expand=YES)
 
     # 브라우저 등록 클릭
