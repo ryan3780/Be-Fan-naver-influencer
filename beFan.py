@@ -9,28 +9,47 @@ import chromedriver_autoinstaller
 import os
 from tkinter import *
 from tkinter import ttk
+from webdriver_manager.chrome import ChromeDriverManager
+import shutil
 
 
 def start():
 
+    txt_path = os.path.dirname(os.path.abspath(__file__)) + '/already_fan.txt'
+    print(txt_path)
+
     chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
-    driver_path = f'./{chrome_ver}/chromedriver'
+
+    driver_path = os.path.dirname(os.path.abspath(
+        __file__)) + f'/{chrome_ver}/chromedriver'
 
     if os.path.exists(driver_path):
         print(f"chrom driver is insatlled: {driver_path}")
     else:
         print(f"install the chrome driver(ver: {chrome_ver})")
-        chromedriver_autoinstaller.install(True)
+        os.makedirs(os.path.dirname(os.path.abspath(
+            __file__)) + f'/{chrome_ver}', exist_ok=True)
+        to_file_path = os.path.dirname(os.path.abspath(
+            __file__)) + f'/{chrome_ver}'
+        # chromedriver_autoinstaller.install(cwd=True)
+        origin_driver_path = ChromeDriverManager().install()
+        shutil.copy(origin_driver_path, to_file_path)
 
     options = Options()
 
     options.add_argument('--blink-settings=imagesEnabled=false')
+    options.binary_location = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
     # 접속할 url
     url = "https://talk.naver.com/"
 
     # 접속 시도
-    driver = webdriver.Chrome(driver_path, options=options)
+    try:
+        driver = webdriver.Chrome(driver_path, options=options)
+    except:
+        print('아래 주소로 댓글 남겨주세요.')
+        print('\x1b]8;;%s\x1b\\%s\x1b]8;;\x1b\\' %
+              ('https://firmly.tistory.com/entry/%EB%84%A4%EC%9D%B4%EB%B2%84-%EC%9D%B8%ED%94%8C%EB%A3%A8%EC%96%B8%EC%84%9C-%EB%A7%9E%ED%8C%AC%ED%95%98%EA%B8%B0-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8-with-selenium-and-python', '댓글 남기러 가기'))
 
     driver.get(url)
 
@@ -87,9 +106,6 @@ def start():
             new_window.title("아이디랑 비번 확인 필요")
             new_window.geometry(
                 f"{app_width}x{app_height}+{int(center_width)}+{int(center_height)}")
-
-            Label(new_window, text="아이디와 비밀번호를 확인해주세요",
-                  anchor="n", pady=10).pack()
             Button(new_window, text='종료하기', command=quit_all, width=20, height=3, fg='white', bg='white', cursor="coffee_mug").pack(
                 side=TOP, expand=YES)
 
@@ -106,7 +122,7 @@ def start():
 
     # 로그인 실패 시 처리
     except:
-        print('에러')
+        print('로그인 에러')
         replace_tk()
         return
     # 스크롤 특정 엘리먼트로 이동
@@ -147,7 +163,7 @@ def start():
 
     print("next level")
 
-    f = open('./already_fan.txt', mode='r')
+    f = open(txt_path, mode='r')
 
     already_fan = []
 
@@ -225,7 +241,7 @@ def start():
                             By.CLASS_NAME, 'name').text)
 
     # a : 이어쓰기 모드
-    f = open('./already_fan.txt', 'a', encoding='utf-8')
+    f = open(txt_path, 'a', encoding='utf-8')
 
     for fan_name in new_fan:
         if fan_name != '':
